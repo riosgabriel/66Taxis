@@ -1,0 +1,6 @@
+logs
+project/project
+target
+/build.xml
+/conf/secret.conf
+.idea
