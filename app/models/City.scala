@@ -10,14 +10,42 @@ object City {
   type Position = (Int, Int)
 
   private val state: Map[Position, Boolean] = Parser.parse(getClass.getClassLoader.getResource("map-min.csv").getPath)
+
   private var taxis: List[Taxi] = Nil
-  private val passengers: List[Passenger] = Nil
-  private val maxX = state.keys.maxBy(_._1)._1
-  private val maxY = state.keys.maxBy(_._2)._2
+  private var passengers: List[Passenger] = Nil
+
+  val maxX = state.keys.maxBy(_._1)._1
+  val maxY = state.keys.maxBy(_._2)._2
 
   def addTaxi(taxi: Taxi) = {
     //Utilizar Either?
     if(!isBlocked(taxi.position)) taxis = taxis :+ taxi
+  }
+
+  def addPassenger(passenger: Passenger) = {
+    if(!isBlocked(passenger.position)) {
+      searchForClosestTaxi(passenger.position) match {
+        case (Some(taxi), path) => {
+          taxi.addPassenger(passenger)
+          taxi.path = path
+          taxi.state = EnRoute
+        }
+        case (None, _) => "Não há taxis disponíveis"
+      }
+    }
+  }
+
+  def moveStep = {
+    ???
+  }
+
+  private def searchForClosestTaxi(pos: Position): (Option[Taxi], List[Position]) = {
+    ???
+  }
+
+  def restart = {
+    taxis = Nil
+    passengers = Nil
   }
 
   private def isBlocked(position: Position) = state.get(position).getOrElse(false)
@@ -34,4 +62,6 @@ object City {
         }
       }
     } map (_ mkString " ") mkString "\n"
+
+
 }
