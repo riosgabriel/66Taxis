@@ -11,7 +11,7 @@ object Main {
     val taxi2 = Taxi((5, 4))
     val taxi3 = Taxi((4, 9))
 
-    val passenger1 = Passenger((8,8), (5, 5))
+    val passenger1 = Passenger((8,8), (8, 11))
 
     val city = City
     city.addTaxi(taxi1)
@@ -22,13 +22,14 @@ object Main {
 
     println("Start City\n")
     println(city.render)
-    println
+    println("\n\n")
 
-    for(i <- 1 to 8) {
+    for(i <- 1 to 14) {
 //      if(i == 5) city.restart
-      println(s"City on time ${i}\n")
+      println(s"City on time ${i}")
       city.moveStep
       println(city.render)
+      println("\n")
       Thread.sleep(2000)
     }
   }

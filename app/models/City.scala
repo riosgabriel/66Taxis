@@ -37,8 +37,23 @@ object City {
     }
   }
 
-  def moveStep = {
-    taxis.foreach(_.move)
+  def moveStep() = {
+    taxis.foreach { taxi =>
+      taxi.state match {
+        case EnRoute if taxi.path.isEmpty =>  {
+          passengers.find(_.position == taxi.position).foreach { passenger =>
+            taxi.pickup(passenger)
+            passengers = passengers.filter(_ != passenger)
+          }
+        }
+        case Occupied if taxi.path.isEmpty => {
+          taxi.dropOff
+        }
+
+        case _ => taxi.move
+      }
+
+    }
   }
 
   private def searchForClosestTaxi(startPosition: Position): (Option[Taxi], List[Position]) = {
@@ -66,6 +81,7 @@ object City {
           case p if taxis.exists(_.position == p) => {
             taxis.find(_.position == p) match {
               case Some(t) => t.state.symbol
+              case _ =>  ' '
             }
           }
           case p if passengers.exists(_.position == p) => 'P'

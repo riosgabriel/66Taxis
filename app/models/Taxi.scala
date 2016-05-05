@@ -16,36 +16,32 @@ case class Taxi(var position: (Int, Int),
     case _ => false
   }
 
-  def addPassenger(passenger: Passenger) = {
+  def pickup(passenger: Passenger) = {
     this.passenger = Some(passenger)
+    this.state = Occupied
+    path = Astar.search(City.state, passenger.position, passenger.destination)
+  }
+
+  def dropOff = {
+    this.passenger = None
+    this.state = Free
+
+    getNewRoute
   }
 
   def move = {
-    state match {
-      case EnRoute => {
-        if(path.isEmpty) passenger match {
-            case Some(p) => {
-              path = Astar.search(City.state, this.position, p.destination)
-              doStep
-            }
-            case None =>
-          }
-        else {
-          doStep
-        }
-      }
-      case Free => {
-        if(path.isEmpty) path = randomPath(City.state, this.position)
-        else doStep
-      }
+    path match {
+      case Nil => getNewRoute
       case _ => doStep
     }
   }
 
   private def doStep = {
     this.position = path.head
-    path = path.tail
+    this.path = path.tail
   }
+
+  private def getNewRoute = path = randomPath(City.state, this.position)
 }
 
 sealed trait TaxiState {
