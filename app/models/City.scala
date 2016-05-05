@@ -9,10 +9,10 @@ object City {
 
   type Position = (Int, Int)
 
-  private val state: Map[Position, Boolean] = Parser.parse(getClass.getClassLoader.getResource("map-min.csv").getPath)
-
   private var taxis: List[Taxi] = Nil
   private var passengers: List[Passenger] = Nil
+
+  val state: Map[Position, Boolean] = Parser.parse(getClass.getClassLoader.getResource("map-min.csv").getPath)
 
   val maxX = state.keys.maxBy(_._1)._1
   val maxY = state.keys.maxBy(_._2)._2
@@ -36,7 +36,7 @@ object City {
   }
 
   def moveStep = {
-    ???
+    taxis.foreach(_.move)
   }
 
   private def searchForClosestTaxi(pos: Position): (Option[Taxi], List[Position]) = {
@@ -56,7 +56,11 @@ object City {
     (0 to maxX) map { row =>
       (0 to maxY) map { col =>
         (row, col) match {
-          case p if taxis.exists(_.position == p) => 'T'
+          case p if taxis.exists(_.position == p) => {
+            taxis.find(_.position == p) match {
+              case Some(t) => t.state.symbol
+            }
+          }
           case p if passengers.exists(_.position == p) => 'P'
           case p => state.get(p).map(if (_) 'X' else '_') getOrElse ' '
         }
