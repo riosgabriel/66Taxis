@@ -1,5 +1,6 @@
 package models
 
+import core.Astar
 import parser.Parser
 
 /**
@@ -23,14 +24,15 @@ object City {
   }
 
   def addPassenger(passenger: Passenger) = {
+    //Utilizar Either?
     if(!isBlocked(passenger.position)) {
       searchForClosestTaxi(passenger.position) match {
         case (Some(taxi), path) => {
-          taxi.addPassenger(passenger)
           taxi.path = path
           taxi.state = EnRoute
+          passengers = passengers :+ passenger
         }
-        case (None, _) => "Não há taxis disponíveis"
+        case _ => "Não há taxis disponíveis"
       }
     }
   }
@@ -39,8 +41,13 @@ object City {
     taxis.foreach(_.move)
   }
 
-  private def searchForClosestTaxi(pos: Position): (Option[Taxi], List[Position]) = {
-    ???
+  private def searchForClosestTaxi(startPosition: Position): (Option[Taxi], List[Position]) = {
+    taxis.filter(_.state == Free).map { t =>
+      (t, Astar.search(City.state, t.position, startPosition))
+    }.minBy(_._2.size) match {
+      case (t, p) => (Some(t), p)
+      case _ => (None, Nil)
+    }
   }
 
   def restart = {
@@ -66,6 +73,4 @@ object City {
         }
       }
     } map (_ mkString " ") mkString "\n"
-
-
 }

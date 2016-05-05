@@ -1,6 +1,7 @@
 package models
 
 import Util.Movable
+import core.Astar
 
 /**
   * Created by gabriel on 5/3/16.
@@ -20,8 +21,28 @@ case class Taxi(var position: (Int, Int),
   }
 
   def move = {
-    if(path.isEmpty) path = randomPath(City.state, this.position)
+    state match {
+      case EnRoute => {
+        if(path.isEmpty) passenger match {
+            case Some(p) => {
+              path = Astar.search(City.state, this.position, p.destination)
+              doStep
+            }
+            case None =>
+          }
+        else {
+          doStep
+        }
+      }
+      case Free => {
+        if(path.isEmpty) path = randomPath(City.state, this.position)
+        else doStep
+      }
+      case _ => doStep
+    }
+  }
 
+  private def doStep = {
     this.position = path.head
     path = path.tail
   }
