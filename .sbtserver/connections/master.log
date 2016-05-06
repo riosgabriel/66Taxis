@@ -1,8 +1,0 @@
-New log file opened at Tue May 03 21:57:38 BRT 2016 by 2820@brainiac
-Taking next connection to: 45378
-Checking to see if clients are empty...
-No non-daemon clients connected after 3 min. Shutting down.
-Server socket thread exiting.
-0 clients open, will close them...
-All client sockets have been closed.
-Closing the 2820@brainiac logs at Tue May 03 22:00:38 BRT 2016, goodbye.

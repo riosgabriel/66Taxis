@@ -20,7 +20,7 @@ case class Taxi(var position: (Int, Int), var state: TaxiState = Free) extends M
   def pickup(passenger: Passenger) = {
     this.passenger = Some(passenger)
     this.state = Occupied
-    path = Astar.search(City.state, passenger.position, passenger.destination)
+    path = Astar.search(City.state, passenger.location, passenger.destination)
   }
 
   def dropOff() = {

@@ -29,15 +29,16 @@ object City {
 
   def addPassenger(passenger: Passenger) = {
     //Utilizar Either?
-    if(!isBlocked(passenger.position)) {
-      searchForClosestTaxi(passenger.position) match {
+    if(!isBlocked(passenger.location)) {
+      searchForClosestTaxi(passenger.location) match {
         case (Some(taxi), path) => {
           taxi.path = path
           taxi.state = EnRoute
-          this.passengers = passengers :+ passenger
         }
         case _ => "Não há taxis disponíveis"
       }
+
+      this.passengers = passengers :+ passenger
     }
   }
 
@@ -45,7 +46,7 @@ object City {
     this.taxis.foreach { taxi =>
       taxi.state match {
         case EnRoute if taxi.path.isEmpty =>  {
-          passengers.find(_.position == taxi.position).foreach { passenger =>
+          passengers.find(_.location == taxi.position).foreach { passenger =>
             taxi.pickup(passenger)
             passengers = passengers.filter(_ != passenger)
           }
@@ -90,7 +91,7 @@ object City {
               case _ =>  ' '
             }
           }
-          case p if passengers.exists(_.position == p) => 'P'
+          case p if passengers.exists(_.location == p) => 'P'
           case p => state.get(p).map(if (_) 'X' else '_') getOrElse ' '
         }
       }
