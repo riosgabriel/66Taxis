@@ -18,6 +18,10 @@ object City {
   val maxX = state.keys.maxBy(_._1)._1
   val maxY = state.keys.maxBy(_._2)._2
 
+  def getTaxis = taxis
+
+  def getPassengers = passengers
+
   def addTaxi(taxi: Taxi) = {
     //Utilizar Either?
     if(!isBlocked(taxi.position)) taxis = taxis :+ taxi
@@ -30,7 +34,7 @@ object City {
         case (Some(taxi), path) => {
           taxi.path = path
           taxi.state = EnRoute
-          passengers = passengers :+ passenger
+          this.passengers = passengers :+ passenger
         }
         case _ => "Não há taxis disponíveis"
       }
@@ -38,7 +42,7 @@ object City {
   }
 
   def moveStep() = {
-    taxis.foreach { taxi =>
+    this.taxis.foreach { taxi =>
       taxi.state match {
         case EnRoute if taxi.path.isEmpty =>  {
           passengers.find(_.position == taxi.position).foreach { passenger =>
@@ -56,6 +60,15 @@ object City {
     }
   }
 
+  def restart = {
+    taxis = Nil
+    passengers = Nil
+  }
+
+  private def isBlocked(position: Position) = state.getOrElse(position, false)
+
+  private def existsTaxi(pos: Position) = taxis.exists(_.position == pos)
+
   private def searchForClosestTaxi(startPosition: Position): (Option[Taxi], List[Position]) = {
     taxis.filter(_.state == Free).map { t =>
       (t, Astar.search(City.state, t.position, startPosition))
@@ -65,14 +78,7 @@ object City {
     }
   }
 
-  def restart = {
-    taxis = Nil
-    passengers = Nil
-  }
-
-  private def isBlocked(position: Position) = state.get(position).getOrElse(false)
-
-  private def existsTaxi(pos: Position) = taxis.exists(_.position == pos)
+  def renderHtml = render.split("\n")
 
   def render =
     (0 to maxX) map { row =>

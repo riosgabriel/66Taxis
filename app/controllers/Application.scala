@@ -2,19 +2,24 @@ package controllers
 
 import play.api.libs.json._
 import play.api.mvc._
-import models.{Passenger, Taxi}
+import models.{City, Passenger, Taxi}
 
 object Application extends Controller {
 
-  def addTaxi = Action(BodyParsers.parse.json) { request =>
-    ???
+  def addTaxi = Action(BodyParsers.parse.json) { implicit request =>
+    val x = (request.body \ "taxi" \ "x").as[Int]
+    val y = (request.body \ "taxi" \ "y").as[Int]
+
+    City.addTaxi(Taxi((x, y)))
+
+    Ok
   }
 
   def addPassenger = Action(BodyParsers.parse.json) { request =>
     ???
   }
 
-  def addTime() = Action { request =>
+  def doStep() = Action { request =>
     ???
   }
 
@@ -23,7 +28,7 @@ object Application extends Controller {
   }
 
   def state = Action { request =>
-    ???
+    Ok(views.html.city(City.renderHtml)).as(HTML)
   }
 
 //  def listBooks = Action {

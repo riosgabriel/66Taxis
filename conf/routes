@@ -5,7 +5,7 @@
 # Home page
 POST     /taxi                            controllers.Application.addTaxi
 POST     /passenger                       controllers.Application.addPassenger
-POST     /time                            controllers.Application.addTime
+POST     /time                            controllers.Application.doStep
 POST     /restart                         controllers.Application.restart
 GET      /state                           controllers.Application.state
 

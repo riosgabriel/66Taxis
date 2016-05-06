@@ -24,13 +24,13 @@ object Main {
     println(city.render)
     println("\n\n")
 
-    for(i <- 1 to 14) {
-//      if(i == 5) city.restart
+    for(i <- 1 to 20) {
+      if(i == 5) city.addPassenger(Passenger((2, 8), (4, 3)))
       println(s"City on time ${i}")
       city.moveStep
       println(city.render)
       println("\n")
-      Thread.sleep(2000)
+      Thread.sleep(1000)
     }
   }
 }

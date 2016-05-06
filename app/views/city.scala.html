@@ -1,0 +1,16 @@
+@(city: Array[String])
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>66Taxis</title>
+</head>
+<body>
+    <ul><h1>State of City</h1></ul>
+
+    <ul>
+        @for(line <- city) {
+        <ul>@line</ul>
+        }
+    </ul>
+</body>
+</html>
