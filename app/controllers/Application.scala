@@ -15,16 +15,24 @@ object Application extends Controller {
     Ok
   }
 
-  def addPassenger = Action(BodyParsers.parse.json) { request =>
-    ???
+  def addPassenger = Action(BodyParsers.parse.json) { implicit request =>
+    val locX = (request.body \ "passenger" \ "location" \ "x").as[Int]
+    val locY = (request.body \ "passenger" \ "location" \ "x").as[Int]
+    val destX = (request.body \ "passenger" \ "destination" \ "x").as[Int]
+    val destY = (request.body \ "passenger" \ "destination" \ "x").as[Int]
+
+    City.addPassenger(Passenger((locX, locY), (destX, destY)))
+    Ok
   }
 
   def doStep() = Action { request =>
-    ???
+    City.moveStep()
+    Ok
   }
 
   def restart = Action { request =>
-    ???
+    City.restart
+    Ok
   }
 
   def state = Action { request =>
