@@ -6,14 +6,17 @@ API
 Payloads examples:
 
 POST /taxi
+```json
 {
   "taxi": {
     "x": 4,
     "y": 5
   }
 }
+```
 
 POST /passenger
+```json
 {
   "passenger": {
     "location": {
@@ -26,3 +29,4 @@ POST /passenger
     }
   }
 }
+```
