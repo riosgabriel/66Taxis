@@ -23,12 +23,10 @@ object City {
   def getPassengers = passengers
 
   def addTaxi(taxi: Taxi) = {
-    //Utilizar Either?
     if(!isBlocked(taxi.position)) taxis = taxis :+ taxi
   }
 
   def addPassenger(passenger: Passenger) = {
-    //Utilizar Either?
     if(!isBlocked(passenger.location)) {
       searchForClosestTaxi(passenger.location) match {
         case (Some(taxi), path) => {
@@ -71,11 +69,15 @@ object City {
   private def existsTaxi(pos: Position) = taxis.exists(_.position == pos)
 
   private def searchForClosestTaxi(startPosition: Position): (Option[Taxi], List[Position]) = {
-    taxis.filter(_.state == Free).map { t =>
+    val freeTaxis = taxis.filter(_.state == Free).map { t =>
       (t, Astar.search(City.state, t.position, startPosition))
-    }.minBy(_._2.size) match {
-      case (t, p) => (Some(t), p)
-      case _ => (None, Nil)
+    }
+
+    if(freeTaxis.isEmpty) (None, List.empty[Position])
+    else {
+      freeTaxis.minBy(_._2.size) match {
+        case (taxi, positions) => (Option(taxi), positions)
+      }
     }
   }
 
@@ -97,3 +99,5 @@ object City {
       }
     } map (_ mkString " ") mkString "\n"
 }
+
+case class CityState(positions: List)

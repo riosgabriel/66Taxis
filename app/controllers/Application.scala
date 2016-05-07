@@ -7,12 +7,17 @@ import models.{City, Passenger, Taxi}
 object Application extends Controller {
 
   def addTaxi = Action(BodyParsers.parse.json) { implicit request =>
-    val x = (request.body \ "taxi" \ "x").as[Int]
-    val y = (request.body \ "taxi" \ "y").as[Int]
+    val p = request.body.validate[Taxi]
 
-    City.addTaxi(Taxi((x, y)))
-
-    Ok
+    p.fold(
+      errors => {
+        BadRequest(Json.obj("status" -> "BadRequest", "message" -> JsError.toFlatJson(errors)))
+      },
+      taxi => {
+        City.addTaxi(taxi)
+        Ok(Json.obj("status" -> "OK"))
+      }
+    )
   }
 
   def addPassenger = Action(BodyParsers.parse.json) { implicit request =>
@@ -20,7 +25,7 @@ object Application extends Controller {
 
     p.fold(
       errors => {
-        BadRequest(Json.obj("status" -> "OK", "message" -> JsError.toFlatJson(errors)))
+        BadRequest(Json.obj("status" -> "BadRequest", "message" -> JsError.toFlatJson(errors)))
       },
       passenger => {
         City.addPassenger(passenger)
@@ -31,32 +36,18 @@ object Application extends Controller {
 
   def doStep() = Action { request =>
     City.moveStep()
-    Ok
+    Ok(Json.obj("status" -> "OK"))
   }
 
   def restart = Action { request =>
     City.restart
-    Ok
+    Ok(Json.obj("status" -> "OK"))
   }
 
   def state = Action { request =>
-    Ok(views.html.city(City.renderHtml)).as(HTML)
+    request match {
+      case Accepts.Json() => Ok(toJson(value))
+      case Accepts.Html() => Ok(views.html.city(City.renderHtml)).as(HTML)
+      case _ => Ok()
   }
-
-//  def listBooks = Action {
-//    Ok(Json.toJson(books))
-//  }
-//
-//  def saveBook = Action(BodyParsers.parse.json) { request =>
-//    val b = request.body.validate[Book]
-//    b.fold(
-//      errors => {
-//        BadRequest(Json.obj("status" -> "OK", "message" -> JsError.toFlatJson(errors)))
-//      },
-//      book => {
-//        addBook(book)
-//        Ok(Json.obj("status" -> "OK"))
-//      }
-//    )
-//  }
 }

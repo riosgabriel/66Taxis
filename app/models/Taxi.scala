@@ -2,13 +2,15 @@ package models
 
 import util.Movable
 import core.Astar
-import play.api.libs.json.Json
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 /**
   * Created by gabriel on 5/3/16.
   */
-case class Taxi(var position: (Int, Int), var state: TaxiState = Free) extends Movable {
+case class Taxi(var position: (Int, Int)) extends Movable {
 
+  var state: TaxiState = Free
   var path: List[(Int, Int)] = Nil
   var passenger: Option[Passenger] = None
 
@@ -43,6 +45,12 @@ case class Taxi(var position: (Int, Int), var state: TaxiState = Free) extends M
   }
 
   private def getNewRoute() = path = randomPath(City.state, this.position)
+}
+
+object Taxi {
+
+  implicit val taxiReads: Reads[Taxi] =
+    ((JsPath \ "taxi" \ "x").read[Int] and (JsPath \ "taxi" \ "y").read[Int]).tupled.map(Taxi(_))
 }
 
 sealed trait TaxiState {
