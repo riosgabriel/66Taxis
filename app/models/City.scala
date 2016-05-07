@@ -22,22 +22,30 @@ object City {
 
   def getPassengers = passengers
 
-  def addTaxi(taxi: Taxi) = {
-    if(!isBlocked(taxi.position)) taxis = taxis :+ taxi
+  def addTaxi(taxi: Taxi): Either[String, String] = {
+    if(!isBlocked(taxi.position)) {
+      taxis = taxis :+ taxi
+      Right("Passenger added")
+    }
+    else Left("Blocked position for taxi")
   }
 
-  def addPassenger(passenger: Passenger) = {
+  def addPassenger(passenger: Passenger): Either[String, String] = {
     if(!isBlocked(passenger.location)) {
       searchForClosestTaxi(passenger.location) match {
-        case (Some(taxi), path) => {
-          taxi.path = path
-          taxi.state = EnRoute
-        }
-        case _ => "Não há taxis disponíveis"
-      }
+        case Some(result) => {
+          val (taxi, path) = result
+          taxi.enroute(path)
+          this.passengers = passengers :+ passenger
+          Right("Taxi enroute")
 
-      this.passengers = passengers :+ passenger
+        }
+        case _ =>
+          this.passengers = passengers :+ passenger
+          Right("Passenger added")
+      }
     }
+    else Left("Blocked position for passenger")
   }
 
   def moveStep() = {
@@ -50,33 +58,31 @@ object City {
           }
         }
         case Occupied if taxi.path.isEmpty => {
-          taxi.dropOff
+          taxi.dropOff()
         }
 
-        case _ => taxi.move
+        case _ => taxi.move()
       }
 
     }
   }
 
-  def restart = {
+  def restart() = {
     taxis = Nil
     passengers = Nil
   }
 
   private def isBlocked(position: Position) = state.getOrElse(position, false)
 
-  private def existsTaxi(pos: Position) = taxis.exists(_.position == pos)
-
-  private def searchForClosestTaxi(startPosition: Position): (Option[Taxi], List[Position]) = {
+  private def searchForClosestTaxi(startPosition: Position): Option[(Taxi, List[Position])] = {
     val freeTaxis = taxis.filter(_.state == Free).map { t =>
       (t, Astar.search(City.state, t.position, startPosition))
     }
 
-    if(freeTaxis.isEmpty) (None, List.empty[Position])
+    if(freeTaxis.isEmpty) None
     else {
       freeTaxis.minBy(_._2.size) match {
-        case (taxi, positions) => (Option(taxi), positions)
+        case (taxi, positions) => Some(taxi, positions)
       }
     }
   }
@@ -99,5 +105,3 @@ object City {
       }
     } map (_ mkString " ") mkString "\n"
 }
-
-case class CityState(positions: List)

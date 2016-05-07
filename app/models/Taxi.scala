@@ -19,6 +19,11 @@ case class Taxi(var position: (Int, Int)) extends Movable {
     case _ => false
   }
 
+  def enroute(path: List[(Int, Int)]) = {
+    state = EnRoute
+    this.path = path
+  }
+
   def pickup(passenger: Passenger) = {
     this.passenger = Some(passenger)
     this.state = Occupied

@@ -14,8 +14,10 @@ object Application extends Controller {
         BadRequest(Json.obj("status" -> "BadRequest", "message" -> JsError.toFlatJson(errors)))
       },
       taxi => {
-        City.addTaxi(taxi)
-        Ok(Json.obj("status" -> "OK"))
+        City.addTaxi(taxi) match {
+          case Left(msg) => BadRequest(Json.obj("status" -> "BadRequest", "message" -> msg))
+          case Right(msg) => Ok(Json.obj("status" -> "OK"))
+        }
       }
     )
   }
@@ -28,8 +30,10 @@ object Application extends Controller {
         BadRequest(Json.obj("status" -> "BadRequest", "message" -> JsError.toFlatJson(errors)))
       },
       passenger => {
-        City.addPassenger(passenger)
-        Ok(Json.obj("status" -> "OK"))
+        City.addPassenger(passenger) match {
+          case Left(msg) => BadRequest(Json.obj("status" -> "BadRequest", "message" -> msg))
+          case Right(msg) => Ok(Json.obj("status" -> "OK"))
+        }
       }
     )
   }
@@ -46,8 +50,9 @@ object Application extends Controller {
 
   def state = Action { request =>
     request match {
-      case Accepts.Json() => Ok(toJson(value))
+      case Accepts.Json() => Ok(views.html.city(City.renderHtml)).as(HTML)
       case Accepts.Html() => Ok(views.html.city(City.renderHtml)).as(HTML)
-      case _ => Ok()
+      case _ => Ok(views.html.city(City.renderHtml)).as(HTML)
+    }
   }
 }
