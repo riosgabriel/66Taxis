@@ -2,7 +2,7 @@ name := "66Taxis"
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = project.in(file(".")).enablePlugins(PlayScala)
+lazy val root = project.in(file(".")).enablePlugins(PlayScala).configs(IntegrationTest)
 
 libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.9.2" % "1.8" % "test" withSources()
