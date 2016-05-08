@@ -5,12 +5,9 @@
     <title>66Taxis</title>
 </head>
 <body>
-    <ul><h1>State of City</h1></ul>
-
-    <ul>
-        @for(line <- city) {
-        <ul>@line</ul>
-        }
-    </ul>
+    <h1>State of City</h1>
+    @for(line <- city) {
+    @line</br>
+    }
 </body>
 </html>

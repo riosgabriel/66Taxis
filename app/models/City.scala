@@ -13,7 +13,7 @@ object City {
   private var taxis: List[Taxi] = Nil
   private var passengers: List[Passenger] = Nil
 
-  val state: Map[Position, Boolean] = Parser.parse(getClass.getClassLoader.getResource("map-min.csv").getPath)
+  val state: Map[Position, Boolean] = Parser.parse(getClass.getClassLoader.getResource("map.csv").getPath)
 
   val maxX = state.keys.maxBy(_._1)._1
   val maxY = state.keys.maxBy(_._2)._2
@@ -103,8 +103,8 @@ object City {
             }
           }
           case p if passengers.exists(_.location == p) => 'P'
-          case p => state.get(p).map(if (_) 'X' else '_') getOrElse ' '
+          case p => state.get(p).map(if (_) 'x' else '_') getOrElse ' '
         }
       }
-    } map (_ mkString " ") mkString "\n"
+    } map (_ mkString "") mkString "\n"
 }
