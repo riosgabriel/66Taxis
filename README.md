@@ -1,8 +1,8 @@
 # 66Taxis
 ------------------------------------------------
 
-Projeto para simular uma cidade com táxis e passageiros. 
-Os táxis ficam circulando aleatoriamente pelas ruas da cidade esperando chamadas de passageiros. 
+Projeto para simular uma cidade com táxis e passageiros.
+Os táxis ficam circulando aleatoriamente pelas ruas da cidade esperando chamadas de passageiros.
 Quando recebe uma chamada, o taxista deve ir até o local do passageiro e levá-lo para seu destino.
 
 ### Principios assumidos
@@ -13,11 +13,11 @@ Quando recebe uma chamada, o taxista deve ir até o local do passageiro e levá-
   - O taxi deve percorrer o menor caminho até o destino do passageiro
   - O mesmo local (posição), pode conter vários passageiros e taxis.
   - O mapa da cidade é provido pelo formato do seguinte arquivo <adicionar arquivo>
-  
+
 ### API
 **POST /taxi**
 
-Exemplo de request:
+**Exemplo de requisição:**
 ```json
 {
   "taxi": {
@@ -27,11 +27,28 @@ Exemplo de request:
 }
 ```
 
-Exemplo de response:
+**Resposta de sucesso:**
+
+**Code: 200**
 ```json
+{
+  "status": "OK"
+}
+```
+
+**Resposta de erro:**
+
+**Code: 400**
+```json
+{
+  "status": "BadRequest",
+  "message": "Blocked position for taxi"
+}
 ```
 
 **POST /passenger**
+
+**Exemplo de requisição:**
 ```json
 {
   "passenger": {
@@ -47,16 +64,56 @@ Exemplo de response:
 }
 ```
 
-**POST /time**
+**Resposta de sucesso:**
+
+**Code: 200**
 ```json
+{
+  "status": "OK"
+}
+```
+
+**Resposta de erro:**
+
+**Code: 400**
+```json
+{
+  "status": "BadRequest",
+  "message": "Blocked position for passenger"
+}
+```
+
+**POST /time**
+
+**Resposta de sucesso:**
+
+**Code: 200**
+```json
+{
+  "status": "OK"
+}
 ```
 
 **POST /restart**
+
+**Resposta de sucesso:**
+
+**Code: 200**
 ```json
+{
+  "status": "OK"
+}
 ```
 
 **GET /state**
+
+**Resposta de sucesso:**
+
+**Code: 200**
 ```json
+{
+  "status": "OK"
+}
 ```
 
 ##### Legenda:

@@ -22,27 +22,30 @@ object City {
 
   def getPassengers = passengers
 
-  def addTaxi(taxi: Taxi): Either[String, String] = {
+  def addTaxi(taxi: Taxi): Either[String, Taxi] = {
     if(!isBlocked(taxi.position)) {
-      taxis = taxis :+ taxi
-      Right("Passenger added")
+        taxis = taxis :+ taxi
+        Right(taxi)
     }
     else Left("Blocked position for taxi")
   }
 
-  def addPassenger(passenger: Passenger): Either[String, String] = {
+  def addPassenger(passenger: Passenger): Either[String, Passenger] = {
     if(!isBlocked(passenger.location)) {
-      searchForClosestTaxi(passenger.location) match {
-        case Some(result) => {
-          val (taxi, path) = result
-          taxi.enroute(path)
-          this.passengers = passengers :+ passenger
-          Right("Taxi enroute")
+      if(taxis.isEmpty) Left("There is no taxi in the city")
+      else {
+        searchForClosestTaxi(passenger.location) match {
+          case Some(result) => {
+            val (taxi, path) = result
+            taxi.enroute(path)
+            this.passengers = passengers :+ passenger
+            Right(passenger)
 
+          }
+          case _ =>
+            this.passengers = passengers :+ passenger
+            Right(passenger)
         }
-        case _ =>
-          this.passengers = passengers :+ passenger
-          Right("Passenger added")
       }
     }
     else Left("Blocked position for passenger")
