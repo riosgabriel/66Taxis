@@ -1,5 +1,7 @@
 package core
 
+import models.Position
+
 import scala.math.abs
 import scala.collection.mutable.PriorityQueue
 
@@ -13,6 +15,15 @@ object Astar {
   type Pos = (Int, Int)
   type W = Map[Pos, Boolean]
   type Heuristic = (Pos, Pos) => Int
+
+  // refactor someday
+  def search(city: Map[Position, Boolean], start: Position, end: Position): List[Position] = {
+    val _city = city.map(t => (t._1.x, t._1.y) -> t._2)
+    val _start = (start.x, start.y)
+    val _end = (end.x, end.y)
+
+    search(_city, _start, _end).map(r => Position(r._1, r._2))
+  }
 
   def search(world: W, s: Pos, e: Pos, heuristic: Heuristic = manhattan): List[Pos] = {
 

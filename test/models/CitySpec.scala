@@ -1,6 +1,7 @@
 package models
 
 import org.specs2.mutable.Specification
+import converters.Converters._
 
 /**
   * Created by gabriel on 5/7/16.
@@ -18,8 +19,8 @@ class CitySpec extends Specification {
     "restart application" in {
       City.restart()
 
-      City.getTaxis must beEmpty
-      City.getPassengers must beEmpty
+      City.taxis must beEmpty
+      City.passengers must beEmpty
     }
 
     "not add passenger without taxi in the city" in {

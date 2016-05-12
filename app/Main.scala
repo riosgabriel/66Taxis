@@ -1,5 +1,6 @@
-import models.{City, Passenger, Taxi}
+import models.{City, Passenger, Position, Taxi}
 
+import converters.Converters._
 /**
   * Created by gabriel on 5/3/16.
   */
@@ -27,7 +28,7 @@ object Main {
     for(i <- 1 to 20) {
       if(i == 5) city.addPassenger(Passenger((2, 8), (4, 3)))
       println(s"City on time ${i}")
-      city.moveStep
+      city.stepForward()
       println(city.render)
       println("\n")
       Thread.sleep(1000)

@@ -39,7 +39,7 @@ object Application extends Controller {
   }
 
   def doStep() = Action { request =>
-    City.moveStep()
+    City.stepForward()
     Ok(Json.obj("status" -> "OK"))
   }
 

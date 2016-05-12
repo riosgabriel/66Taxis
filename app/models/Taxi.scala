@@ -4,55 +4,65 @@ import util.Movable
 import core.Astar
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import converters.Converters._
 
 /**
   * Created by gabriel on 5/3/16.
   */
-case class Taxi(var position: (Int, Int)) extends Movable {
+case class Taxi(var position: Position,
+                var state: TaxiState = Free,
+                var passenger: Option[Passenger] = None,
+                var path: List[Position] = Nil) extends Movable {
 
-  var state: TaxiState = Free
-  var path: List[(Int, Int)] = Nil
-  var passenger: Option[Passenger] = None
-
-  def isFree = state match {
-    case Free => true
-    case _ => false
+  def pickupPassenger(): Unit = {
+    val p = passenger.get
+    val pathToDestination = Astar.search(City.state, p.location, p.destination)
+    state = Occupied
+    path = pathToDestination
   }
 
-  def enroute(path: List[(Int, Int)]) = {
-    state = EnRoute
+  def dropOff(): Unit = {
+    state = Free
+    passenger = None
+    path = newRoute
+  }
+
+  def enRouteTo(passenger: Passenger, path: List[Position]): Unit = {
+    this.state = EnRoute
+    this.passenger = Some(passenger)
     this.path = path
   }
 
-  def pickup(passenger: Passenger) = {
-    this.passenger = Some(passenger)
-    this.state = Occupied
-    path = Astar.search(City.state, passenger.location, passenger.destination)
-  }
+  def move(): Unit = {
+    this.path match {
+      case Nil => this.path = newRoute
+      case _ => {
+        position = path.head
+        path = path.tail
+      }
 
-  def dropOff() = {
-    this.passenger = None
-    this.state = Free
-
-    getNewRoute()
-  }
-
-  def move() = {
-    path match {
-      case Nil => getNewRoute()
-      case _ => doStep()
     }
   }
 
-  private def doStep() = {
-    this.position = path.head
-    this.path = path.tail
+  def aboard: Boolean = {
+    passenger match {
+      case Some(p) => this.position == p.location
+      case None => false
+    }
   }
 
-  private def getNewRoute() = path = randomPath(City.state, this.position)
+  def arrived: Boolean = {
+    passenger match {
+      case Some(p) => this.position == p.destination
+      case None => false
+    }
+  }
+
+  private def newRoute = randomPath(City.state, this.position)
 }
 
 object Taxi {
+  //implicit val taxiFormat = Json.format[Taxi]
 
   implicit val taxiReads: Reads[Taxi] =
     ((JsPath \ "taxi" \ "x").read[Int] and (JsPath \ "taxi" \ "y").read[Int]).tupled.map(Taxi(_))

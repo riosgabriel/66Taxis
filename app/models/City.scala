@@ -2,48 +2,49 @@ package models
 
 import core.Astar
 import parser.Parser
+import converters.Converters._
 
 /**
   * Created by gabriel on 5/3/16.
   */
+
 object City {
 
-  type Position = (Int, Int)
+  private var _taxis: List[Taxi] = Nil
+  private var _passengers: List[Passenger] = Nil
 
-  private var taxis: List[Taxi] = Nil
-  private var passengers: List[Passenger] = Nil
+  def taxis = _taxis
+  def passengers = _passengers
 
-  val state: Map[Position, Boolean] = Parser.parse(getClass.getClassLoader.getResource("map.csv").getPath)
+  val state = Parser.parse(getClass.getClassLoader.getResource("map-min.csv").getPath)
 
-  val maxX = state.keys.maxBy(_._1)._1
-  val maxY = state.keys.maxBy(_._2)._2
-
-  def getTaxis = taxis
-
-  def getPassengers = passengers
+  val maxX = state.keys.maxBy(_.x).x
+  val maxY = state.keys.maxBy(_.y).y
 
   def addTaxi(taxi: Taxi): Either[String, Taxi] = {
-    if(!isBlocked(taxi.position)) {
-        taxis = taxis :+ taxi
-        Right(taxi)
+    if(isBlocked(taxi.position)) Left("Blocked position for taxi")
+    else {
+      _taxis = _taxis :+ taxi
+      Right(taxi)
     }
-    else Left("Blocked position for taxi")
   }
 
+  private def freeTaxis = _taxis.filter(_.state == Free)
+
   def addPassenger(passenger: Passenger): Either[String, Passenger] = {
-    if(!isBlocked(passenger.location)) {
-      if(taxis.isEmpty) Left("There is no taxi in the city")
+    if (!isBlocked(passenger.location)) {
+      if (freeTaxis.isEmpty) Left("There is no taxi in the city")
       else {
         searchForClosestTaxi(passenger.location) match {
           case Some(result) => {
             val (taxi, path) = result
-            taxi.enroute(path)
-            this.passengers = passengers :+ passenger
+            taxi enRouteTo(passenger, path)
+            this._passengers = _passengers :+ passenger
             Right(passenger)
 
           }
           case _ =>
-            this.passengers = passengers :+ passenger
+            this._passengers = _passengers :+ passenger
             Right(passenger)
         }
       }
@@ -51,34 +52,37 @@ object City {
     else Left("Blocked position for passenger")
   }
 
-  def moveStep() = {
-    this.taxis.foreach { taxi =>
+  def stepForward() = {
+    _taxis.foreach { taxi =>
       taxi.state match {
-        case EnRoute if taxi.path.isEmpty =>  {
-          passengers.find(_.location == taxi.position).foreach { passenger =>
-            taxi.pickup(passenger)
-            passengers = passengers.filter(_ != passenger)
+
+        case EnRoute =>
+          if(taxi.aboard) {
+            taxi.pickupPassenger()
+            _passengers = _passengers.filter(_ != taxi.passenger.get)
           }
-        }
-        case Occupied if taxi.path.isEmpty => {
-          taxi.dropOff()
+          else taxi.move()
+
+        case Occupied => {
+          if(taxi.arrived) taxi.dropOff()
+          else taxi.move()
         }
 
         case _ => taxi.move()
       }
-
     }
+
   }
 
   def restart() = {
-    taxis = Nil
-    passengers = Nil
+    _taxis = Nil
+    _passengers = Nil
   }
 
   private def isBlocked(position: Position) = state.getOrElse(position, false)
 
   private def searchForClosestTaxi(startPosition: Position): Option[(Taxi, List[Position])] = {
-    val freeTaxis = taxis.filter(_.state == Free).map { t =>
+    val freeTaxis = _taxis.filter(_.state == Free).map { t =>
       (t, Astar.search(City.state, t.position, startPosition))
     }
 
@@ -96,15 +100,15 @@ object City {
     (0 to maxX) map { row =>
       (0 to maxY) map { col =>
         (row, col) match {
-          case p if taxis.exists(_.position == p) => {
-            taxis.find(_.position == p) match {
+          case p if _taxis.exists(_.position == Position(p._1, p._2)) => {
+            _taxis.find(_.position == Position(p._1, p._2)) match {
               case Some(t) => t.state.symbol
               case _ =>  ' '
             }
           }
-          case p if passengers.exists(_.location == p) => 'P'
-          case p => state.get(p).map(if (_) 'x' else '_') getOrElse ' '
+          case p if _passengers.exists(_.location == Position(p._1, p._2)) => 'P'
+          case p => state.get(Position(p._1, p._2)).map(if (_) 'x' else '_') getOrElse ' '
         }
       }
-    } map (_ mkString "") mkString "\n"
+    } map (_ mkString " ") mkString "\n"
 }

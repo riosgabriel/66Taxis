@@ -1,6 +1,7 @@
 package models
 
 import org.specs2.mutable._
+import converters.Converters._
 
 /**
   * Created by gabriel on 5/7/16.
@@ -14,14 +15,14 @@ class TaxiSpec extends Specification {
     "be occupied when pickup passenger" in {
       val taxi = Taxi((0, 1))
 
-      taxi.pickup(randomPassenger)
+      taxi.pickupPassenger()
 
       taxi.state must be(Occupied)
     }
 
     "be free when dropoff passenger" in {
       val taxi = Taxi((0, 1))
-      taxi.pickup(randomPassenger)
+      taxi.pickupPassenger()
       taxi.dropOff()
 
       taxi.state must be(Free)
@@ -30,7 +31,7 @@ class TaxiSpec extends Specification {
 
     "move to new position" in {
       val taxi = Taxi((0, 1))
-      val randomPath = List((0, 1), (0, 2), (0, 3))
+      val randomPath = List(Position(0, 1), Position(0, 2), Position(0, 3))
       taxi.path = randomPath
 
       taxi.move()
